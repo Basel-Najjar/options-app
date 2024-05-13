@@ -1,0 +1,12 @@
+numpy
+pandas
+seaborn
+scipy
+scikit-learn
+plotly
+matplotlib
+streamlit
+ipykernel
+polygon-api-client
+setuptools
+python-dotenv
