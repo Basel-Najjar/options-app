@@ -10,3 +10,5 @@ ipykernel
 polygon-api-client
 setuptools
 python-dotenv
+yahooquery
+nbformat>=4.2.0

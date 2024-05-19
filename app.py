@@ -1,35 +1,43 @@
 import streamlit as st
 import pandas as pd
 from src.constants import *
-from src.auth import auth
-
-client = auth()
+from yahooquery import Ticker
+import plotly.graph_objects as go
 
 if __name__ == "__main__":
 
-    col1, col2, col3 =  st.columns(3)
-    with col1:
-        ticker = st.text_input(
-            label = 'Enter Symbol:').upper()
-
-    #with col2:
-    #    start_date = st.date_input(
-    #        label = 'Start Date',
-    #        value = TODAY - pd.Timedelta('90d')
-    #    )
-#
-    #with col3:
-    #    end_date = st.date_input(
-    #        label = 'Start Date',
-    #        value = TODAY
-    #    )
-    contract_names=list()
-    for c in client.list_options_contracts(
-        underlying_ticker=ticker,
-        limit=1000
-        ):
-        contract_names.append(c)
-    st.dataframe(pd.DataFrame(contract_names))
+    ticker_name = st.text_input(
+        label = 'Enter Symbol:',
+        placeholder='AAPL',
+        key='ticker_input'
+        ).upper()
     
+    col1, col2 = st.columns(2)
+    with col1:
+        period = st.select_slider(
+            label = 'Select period',
+            options = PERIODS,
+            value='1mo'
+        )
+    with col2:
+        interval = st.select_slider(
+            label= "Select interval",
+            options = INTERVALS,
+            value='1d'
+        )
 
+    ticker = Ticker(ticker_name)
+    df = ticker.history(period=period, interval=interval).loc[ticker_name]
 
+    fig = go.Figure(
+        data = [
+            go.Candlestick(
+                x=df.index,
+                open=df['open'],
+                high=df['high'],
+                low=df['low'],
+                close=df['close']
+                )
+        ]
+    )
+    st.plotly_chart(fig)
