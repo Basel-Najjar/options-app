@@ -1,43 +1,30 @@
 import streamlit as st
 import pandas as pd
+import numpy as np
+
 from src.constants import *
-from yahooquery import Ticker
-import plotly.graph_objects as go
+from src.manual_legs import Leg, add_leg, remove_leg
+from src.app_utils import *
 
 if __name__ == "__main__":
-
-    ticker_name = st.text_input(
-        label = 'Enter Symbol:',
-        placeholder='AAPL',
-        key='ticker_input'
-        ).upper()
-    
-    col1, col2 = st.columns(2)
-    with col1:
-        period = st.select_slider(
-            label = 'Select period',
-            options = PERIODS,
-            value='1mo'
-        )
-    with col2:
-        interval = st.select_slider(
-            label= "Select interval",
-            options = INTERVALS,
-            value='1d'
-        )
-
-    ticker = Ticker(ticker_name)
-    df = ticker.history(period=period, interval=interval).loc[ticker_name]
-
-    fig = go.Figure(
-        data = [
-            go.Candlestick(
-                x=df.index,
-                open=df['open'],
-                high=df['high'],
-                low=df['low'],
-                close=df['close']
+    tab1, tab2 = st.tabs([MANUAL_LEGS_TAB_NAME, "TBD"])
+    with tab1:
+        st.header(MANUAL_LEGS_TAB_NAME)
+        if 'legs' not in st.session_state:
+            st.session_state.legs = []
+            add_leg()
+        head_col1, head_col2 = st.columns(2)
+        with head_col1:
+            st.button(
+                "Add leg", 
+                on_click=add_leg,
                 )
-        ]
-    )
-    st.plotly_chart(fig)
+        with head_col2:
+            st.button(
+                "Reset",
+                on_click=reset_page
+            )
+        
+        for leg in st.session_state.legs:
+            leg.construct_leg()
+
