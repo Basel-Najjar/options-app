@@ -1,1 +1,0 @@
-MANUAL_LEGS_TAB_NAME = "Construct Manual Legs"
