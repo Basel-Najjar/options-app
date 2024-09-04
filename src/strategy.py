@@ -31,9 +31,9 @@ class OptionStrategy:
             expiration=expiration,
         )
         self.legs.append(leg)
-
-        self.net_greeks = self.compute_net_greeks()
-        self.net_value = self.compute_net_value()
+        self.net_greeks, self.net_value, self.net_iv, self.min_dte = (
+            self.compute_metrics()
+        )
 
     def show_strategy(self):
         for idx, leg in enumerate(self.legs):
@@ -41,22 +41,58 @@ class OptionStrategy:
                 f"Leg {idx + 1}: {leg['position']} {leg['type']} with strike {leg['strike']} at price {leg['contract_price']}"
             )
 
-    def compute_net_greeks(self):
+    def compute_metrics(self):
         net_greeks = GreeksDict(delta=0, gamma=0, theta=0, vega=0)
+        net_value = 0
+        net_iv = 0
+        dte_list = list()
 
         for leg in self.legs:
+            # Greeks calculation
             net_greeks["delta"] += leg.greeks.delta
             net_greeks["gamma"] += leg.greeks.gamma
             net_greeks["theta"] += leg.greeks.theta
             net_greeks["vega"] += leg.greeks.vega
 
-        return GreeksObject(net_greeks)
-
-    def compute_net_value(self):
-        net_value = 0
-        for leg in self.legs:
+            # Net value calculation
             net_value += leg.contract_price
-        return net_value
+
+            # Net IV calculation (weighted-delta approach)
+            net_iv += (leg.iv * leg.greeks.delta) / leg.greeks.delta
+
+            # Min DTE calculation
+            dte_list.append(leg.dte)
+
+        return GreeksObject(net_greeks), net_value, net_iv, min(dte_list)
+
+    # def compute_net_greeks(self):
+    #     net_greeks = GreeksDict(delta=0, gamma=0, theta=0, vega=0)
+
+    #     for leg in self.legs:
+    #         net_greeks["delta"] += leg.greeks.delta
+    #         net_greeks["gamma"] += leg.greeks.gamma
+    #         net_greeks["theta"] += leg.greeks.theta
+    #         net_greeks["vega"] += leg.greeks.vega
+
+    #     return GreeksObject(net_greeks)
+
+    # def compute_net_value(self) -> float:
+    #     net_value = 0
+    #     for leg in self.legs:
+    #         net_value += leg.contract_price
+    #     return net_value
+
+    # def compute_net_iv(self) -> float:
+    #     net_iv = 0
+    #     for leg in self.legs:
+    #         net_iv += (leg.iv * leg.greeks.vega) / leg.iv
+    #     return net_iv
+
+    # def compute_near_dte(self) -> int:
+    #     dte_list = list()
+    #     for leg in self.legs:
+    #         dte_list.append(leg.dte)
+    #     return max(dte_list)
 
     def describe(self):
         attr = list()

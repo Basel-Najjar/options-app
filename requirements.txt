@@ -5,6 +5,5 @@ ipykernel
 python-dotenv
 streamlit
 yfinance
-quantlib
+plotly
 tastytrade
-optionlab
