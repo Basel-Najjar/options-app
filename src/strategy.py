@@ -1,7 +1,6 @@
 from .leg import Leg
 from .pricing import black_scholes_merton
 from .market_data import get_current_stock_price, get_greeks
-from .metrics import StrategyMetrics
 from .constants import *
 from .greeks import Greeks
 

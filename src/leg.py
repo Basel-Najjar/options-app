@@ -12,9 +12,6 @@ class Leg:
         underlying: str,
         contract_type: str,
         strike: float,
-        # contract_price: float,
-        # iv: float,
-        # greeks: GreeksDict,
         lot_size: int,
         expiration: date,
     ):
@@ -51,9 +48,6 @@ class Leg:
         return int(
             np.ceil(((self.expiration - date.today()).total_seconds() / (24 * 60 * 60)))
         )
-
-    # def scale_greeks(self, greeks: GreeksDict) -> GreeksDict:
-    #     return {key: value * self.lot_size for key, value in greeks.items()}
 
     def describe(self):
         return vars(self)
