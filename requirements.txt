@@ -6,4 +6,6 @@ python-dotenv
 streamlit
 yfinance
 plotly
+tastytrade-sdk
 tastytrade
+nest_asyncio
